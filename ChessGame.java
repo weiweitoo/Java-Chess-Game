@@ -14,7 +14,6 @@ public class ChessGame
 	private int GameRound = 0;
 	private Player PlayerWinner = null;
 	
-	private ChessSlot SelectedSlot = null;
 	private boolean GameRunning = false;
 	
 	public ChessGame(ChessRule CustomRule)
@@ -140,6 +139,21 @@ public class ChessGame
 		GameRound = 0;
 		
 		PlayerWinner = null;
-		SelectedSlot = null;
+	}
+	
+	//=====Getter=====//
+	public int GetPlayerTurn()
+	{
+		return this.PlayerTurn;
+	}
+	
+	public int GetRound()
+	{
+		return this.GameRound;
+	}
+	
+	public Player GetCurrentTurnPlayer()
+	{
+		return this.PlayerList.get(this.PlayerTurn);
 	}
 }
