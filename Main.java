@@ -43,6 +43,19 @@ public class Main
 		//When player selected a slot
 		//It will return true if there is a chess in the slot and is owned by player of current turn
 		System.out.println(MyrmidonGame.SelectsSlot(FromSlot));
+
+		//After selection, all of the valid moves will store in a buffer
+		//The buffered valid move can be retrive for use
+		ArrayList<ChessSlot> MovesBuffer = MyrmidonGame.GetValidMovesBuffer();
+		//Print all valid move
+		Iterator Itr =  MovesBuffer.iterator();
+		while(Itr.hasNext())
+		{
+			ChessSlot TempSlot = (ChessSlot)Itr.next();
+			Position TempPos = TempSlot.GetPosition();
+			System.out.println("Valid move: (" + TempPos.GetX() + ", " + TempPos.GetY() + ")");
+		}
+
 		//When player attepmt to make a move
 		//It will return true if the move is successful
 		System.out.println(MyrmidonGame.MovesChess(ToSlot));
