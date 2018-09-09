@@ -23,6 +23,11 @@ public class Player
 	{
 		return this.PlayerName;
 	}
+
+	public int GetKill()
+	{
+		return this.KillCount;
+	}
 	
 	//=====Setter=====//
 	public void SetColor(Color PlayerColor)

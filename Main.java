@@ -10,61 +10,149 @@ import java.awt.Color;
 
 public class Main
 {
+	//Instantiate the game
+	public static ChessGame MyrmidonGame = new ChessGame(new MyrmidonRule());
+
 	public static void main(String[] args)
 	{
-		ChessGame MyrmidonGame = new ChessGame(new MyrmidonRule());
-		
+		//Set max player number of this game
 		MyrmidonGame.SetMaxPlayer(2);
-		MyrmidonGame.MakePlayer("Foo", new Color(255,0,0));
-		MyrmidonGame.MakePlayer("Bar", new Color(0,0,255));
-		
+
+		//Set players name
+		String P1Name = "Foo";
+		String P2Name = "Bar";
+
+		//Set players colour
+		Color P1Color = new Color(255,0,0);
+		Color P2Color = new Color(0,0,255);
+
+		//Add players into the game
+		MyrmidonGame.MakePlayer(P1Name, P1Color);
+		MyrmidonGame.MakePlayer(P2Name, P2Color);
+
+		//Start the game (Game board will initiate)
 		MyrmidonGame.StartGame();
-		
-		ChessSlot FromSlot = MyrmidonGame.GameBoard.GetSlot(new Position(0,0));
-		ChessSlot ToSlot = MyrmidonGame.GameBoard.GetSlot(new Position(0,2));
-		System.out.println(MyrmidonGame.PlayerMovesChess(FromSlot, ToSlot));
-		
-		FromSlot = MyrmidonGame.GameBoard.GetSlot(new Position(5,5));
-		ToSlot = MyrmidonGame.GameBoard.GetSlot(new Position(3,3));
-		System.out.println(MyrmidonGame.PlayerMovesChess(FromSlot, ToSlot));
-		
-		FromSlot = MyrmidonGame.GameBoard.GetSlot(new Position(6,0));
-		ToSlot = MyrmidonGame.GameBoard.GetSlot(new Position(5,1));
-		System.out.println(MyrmidonGame.PlayerMovesChess(FromSlot, ToSlot));
-		
-		for(int i = 0;i < MyrmidonGame.GameBoard.GetSizeX();i++)
+
+		//Example of moving chess turn by turn
+		ChessSlot FromSlot;
+		ChessSlot ToSlot;
+
+		//Move Plus for player Foo
+		FromSlot = MyrmidonGame.GetBoardSlot(0,0);
+		ToSlot = MyrmidonGame.GetBoardSlot(0,2);
+		//When player selected a slot
+		//It will return true if there is a chess in the slot and is owned by player of current turn
+		System.out.println(MyrmidonGame.SelectsSlot(FromSlot));
+		//When player attepmt to make a move
+		//It will return true if the move is successful
+		System.out.println(MyrmidonGame.MovesChess(ToSlot));
+
+		//Every successful move will change player turn automatically
+
+		//Move Triangle for player Bar
+		FromSlot = MyrmidonGame.GetBoardSlot(5,5);
+		ToSlot = MyrmidonGame.GetBoardSlot(3,3);
+		System.out.println(MyrmidonGame.SelectsSlot(FromSlot));
+		System.out.println(MyrmidonGame.MovesChess(ToSlot));
+
+		//Move Plus for player Foo but failed
+		FromSlot = MyrmidonGame.GetBoardSlot(6,0);
+		ToSlot = MyrmidonGame.GetBoardSlot(5,1);
+		System.out.println(MyrmidonGame.SelectsSlot(FromSlot));
+		System.out.println(MyrmidonGame.MovesChess(ToSlot));
+
+		//Print round and turn
+		System.out.println("Current turn: " + MyrmidonGame.GetCurrentTurnPlayer().GetName());
+		System.out.println("Current round: " + MyrmidonGame.GetRound());
+
+		//Please read the comments in functions
+		printboard();
+
+		//Play for few rounds...
+		autoplay();
+
+		//3 rounds have passed
+		//Round event handler changed chess type accordingly
+		printboard();
+
+		//Print round and turn
+		System.out.println("Current turn: " + MyrmidonGame.GetCurrentTurnPlayer().GetName());
+		System.out.println("Current round: " + MyrmidonGame.GetRound());
+
+		//Move Triangle for player Foo to attack Bar's Triangle
+		FromSlot = MyrmidonGame.GetBoardSlot(1,2);
+		ToSlot = MyrmidonGame.GetBoardSlot(0,3);
+		System.out.println(MyrmidonGame.SelectsSlot(FromSlot));
+		System.out.println(MyrmidonGame.MovesChess(ToSlot));
+
+		//Move Chevron for player Bar to attack Foo's Sun
+		FromSlot = MyrmidonGame.GetBoardSlot(4,2);
+		ToSlot = MyrmidonGame.GetBoardSlot(3,0);
+		System.out.println(MyrmidonGame.SelectsSlot(FromSlot));
+		System.out.println(MyrmidonGame.MovesChess(ToSlot));
+
+		//Foo's Sun is killed
+		//Bar is the winner of the game
+		System.out.println("The winner: " + MyrmidonGame.GetWinner().GetName());
+
+		//Game restart with same players
+		MyrmidonGame.StartGame();
+
+		//Just to show that the game have restarted
+		//printboard();
+
+		//Game reset and need to re-add players
+		MyrmidonGame.ResetGame();
+	}
+
+	public static void autoplay()
+	{
+		ChessSlot FromSlot;
+		ChessSlot ToSlot;
+
+		//Move Plus for player Foo
+		FromSlot = MyrmidonGame.GetBoardSlot(0,2);
+		ToSlot = MyrmidonGame.GetBoardSlot(1,2);
+		System.out.println(MyrmidonGame.SelectsSlot(FromSlot));
+		System.out.println(MyrmidonGame.MovesChess(ToSlot));
+
+		//Move Triangle for player Bar
+		FromSlot = MyrmidonGame.GetBoardSlot(3,3);
+		ToSlot = MyrmidonGame.GetBoardSlot(4,2);
+		System.out.println(MyrmidonGame.SelectsSlot(FromSlot));
+		System.out.println(MyrmidonGame.MovesChess(ToSlot));
+
+		//Move Chevron for player Foo
+		FromSlot = MyrmidonGame.GetBoardSlot(2,0);
+		ToSlot = MyrmidonGame.GetBoardSlot(4,1);
+		System.out.println(MyrmidonGame.SelectsSlot(FromSlot));
+		System.out.println(MyrmidonGame.MovesChess(ToSlot));
+
+		//Move Plus for player Bar
+		FromSlot = MyrmidonGame.GetBoardSlot(0,5);
+		ToSlot = MyrmidonGame.GetBoardSlot(0,3);
+		System.out.println(MyrmidonGame.SelectsSlot(FromSlot));
+		System.out.println(MyrmidonGame.MovesChess(ToSlot));
+	}
+
+	public static void printboard()
+	{
+		//GetBoardSize return the 1D size of game board
+		for(int n = 0;n < MyrmidonGame.GetBoardSize();n++)
 		{
-			for(int j = 0;j < MyrmidonGame.GameBoard.GetSizeY();j++)
+			//IMPORTANT: GetBoardSlot also accept 1D parameter
+			ChessSlot TempSlot = MyrmidonGame.GetBoardSlot(n);
+			ChessPiece TempPiece = TempSlot.GetChessPiece();
+			//Print out the board on console
+			if (TempPiece != null)
 			{
-				Position TempPos = new Position(i,j);
-				ChessSlot TempSlot = MyrmidonGame.GameBoard.GetSlot(TempPos);
-				ChessPiece TempPiece = TempSlot.GetChessPiece();
-				
-				if (TempPiece != null)
-				{
-					System.out.print(TempPos.GetX() + ", " + TempPos.GetY() + ": ");
-					System.out.println(TempPiece.GetName());
-				}
-				else
-				{
-					System.out.println(TempPos.GetX() + ", " + TempPos.GetY() + ": Empty");
-				}
+				System.out.print(TempSlot.GetPosition().GetX() + ", " + TempSlot.GetPosition().GetY() + ": ");
+				System.out.println(TempPiece.GetName());
+			}
+			else
+			{
+				System.out.println(TempSlot.GetPosition().GetX() + ", " + TempSlot.GetPosition().GetY() + ": Empty");
 			}
 		}
-		
-		/*
-		ArrayList<ChessSlot> ValidMoves = MyrmidonGame.CustomRule.GetAllValidMoves(MyrmidonGame.GameBoard.GetSlot(new Position(2,0)), MyrmidonGame.GameBoard);
-		for(int i = 0;i < ValidMoves.size();i++)
-		{
-			int X = ValidMoves.get(i).GetPosition().GetX();
-			int Y = ValidMoves.get(i).GetPosition().GetY();
-			System.out.println("Valid Moves: ");
-			System.out.print(X);
-			System.out.print(",");
-			System.out.print(Y);
-			System.out.println();
-		}
-		*/
-		System.out.println("Game start!");
 	}
 }

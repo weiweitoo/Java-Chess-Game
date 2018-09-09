@@ -8,11 +8,14 @@ public class ChessGame
 	
 	private ArrayList<Player> PlayerList = new ArrayList<Player>();
 	private int MaxPlayer = 0;
-	public ChessBoard GameBoard = null;
+	private ChessBoard GameBoard = null;
 	
 	private int PlayerTurn = 0;
 	private int GameRound = 0;
 	private Player PlayerWinner = null;
+
+	private ChessSlot StartingSlot = null;
+	private ArrayList<ChessSlot> ValidMovesBuffer;
 	
 	private boolean GameRunning = false;
 	
@@ -65,80 +68,108 @@ public class ChessGame
 		PlayerList.remove(Index);
 	}
 	
-	//The action taken when player attempt to move a chess
-	public boolean PlayerMovesChess(ChessSlot FromSlot, ChessSlot ToSlot)
+	//When player selected a slot
+	public boolean SelectsSlot(ChessSlot SelectedSlot)
+	{
+		ChessPiece TempPiece = SelectedSlot.GetChessPiece();
+		if (TempPiece == null)
+		{
+			return false;
+		}
+		String SelectedSlotOwner = TempPiece.GetPlayer().GetName();
+		if (!PlayerList.get(this.PlayerTurn).GetName().equals(SelectedSlotOwner))
+		{
+			return false;
+		}
+		this.StartingSlot = SelectedSlot;
+		this.ValidMovesBuffer = CustomRule.GetAllValidMoves(this.StartingSlot, this.GameBoard);
+		return true;
+	}
+
+	//When player tries to move a chess
+	public boolean MovesChess(ChessSlot SelectedSlot)
 	{
 		if (!this.GameRunning)
 		{
 			return false;
 		}
-		
-		boolean Movable = false;
-		String FromSlotOwner = FromSlot.GetChessPiece().GetPlayer().GetName();
-		if (!PlayerList.get(PlayerTurn).GetName().equals(FromSlotOwner))
+		if (this.StartingSlot == null)
 		{
 			return false;
 		}
-		ArrayList<ChessSlot> ValidMoves = CustomRule.GetAllValidMoves(FromSlot, GameBoard);
+
+		boolean Movable = false;
+		ArrayList<ChessSlot> ValidMoves = this.ValidMovesBuffer;
 		for(int i = 0;i < ValidMoves.size();i++)
 		{
-			if (ValidMoves.get(i).equals(ToSlot))
+			if (ValidMoves.get(i).equals(SelectedSlot))
 			{
 				Movable = true;
 				break;
 			}
 		}
-		
+
 		if (Movable)
 		{
-			//Move chess
-			boolean HavePiece = ToSlot.RemoveChessPiece();
-			ChessPiece TempChess = FromSlot.GetChessPiece();
-			if (HavePiece)
-			{
-				Player ChessOwner = TempChess.GetPlayer();
-				ChessOwner.AddKill();
-			}
-			ToSlot.SetChessPiece(TempChess);
-			FromSlot.RemoveChessPiece();
-			
-			//Check win
-			PlayerWinner = CustomRule.CheckWin(GameBoard, PlayerList);
-			if (PlayerWinner != null)
-			{
-				this.GameRunning = false;
-				return Movable;
-			}
-			
-			//Change turn & Increase round
-			this.PlayerTurn = (this.PlayerTurn + 1) % MaxPlayer;
-			if (this.PlayerTurn == 0)
-			{
-				this.GameRound += 1;
-				//Trigger round event
-				CustomRule.RoundEvent(this.GameRound, GameBoard);
-			}
+			MovedChess(this.StartingSlot, SelectedSlot);
 		}
 		return Movable;
 	}
+
+	//The action taken when player is about to succesfully move a chess
+	private void MovedChess(ChessSlot FromSlot, ChessSlot ToSlot)
+	{	
+		//Move chess
+		boolean HavePiece = ToSlot.RemoveChessPiece();
+		ChessPiece TempChess = FromSlot.GetChessPiece();
+		if (HavePiece)
+		{
+			Player ChessOwner = TempChess.GetPlayer();
+			ChessOwner.AddKill();
+		}
+		ToSlot.SetChessPiece(TempChess);
+		FromSlot.RemoveChessPiece();
+		
+		//Check win
+		PlayerWinner = CustomRule.CheckWin(this.GameBoard, this.PlayerList);
+		if (PlayerWinner != null)
+		{
+			this.GameRunning = false;
+			return;
+		}
+		
+		//Change turn & Increase round
+		this.PlayerTurn = (this.PlayerTurn + 1) % MaxPlayer;
+		if (this.PlayerTurn == 0)
+		{
+			this.GameRound += 1;
+			//Trigger round event
+			CustomRule.RoundEvent(this.GameRound, GameBoard);
+		}
+	}
 	
+	public ArrayList<ChessSlot> GetValidMovesBuffer()
+	{
+		return this.ValidMovesBuffer;
+	}
+
 	public void StartGame()
 	{
+		this.PlayerTurn = 0;
+		this.GameRound = 0;
+		this.PlayerWinner = null;
 		this.GameBoard = CustomRule.Initiallize(PlayerList);
-		GameRunning = true;
+		this.GameRunning = true;
 	}
 	
 	public void ResetGame()
 	{
-		PlayerList.clear();
-		
-		GameRunning = false;
-		GameBoard = null;
-		
-		PlayerTurn = 0;
-		GameRound = 0;
-		
-		PlayerWinner = null;
+		this.PlayerList.clear();
+		this.GameRunning = false;
+		this.GameBoard = null;
+		this.PlayerTurn = 0;
+		this.GameRound = 0;
+		this.PlayerWinner = null;
 	}
 	
 	//=====Getter=====//
@@ -152,8 +183,35 @@ public class ChessGame
 		return this.GameRound;
 	}
 	
+	public Player GetWinner()
+	{
+		return this.PlayerWinner;
+	}
+
 	public Player GetCurrentTurnPlayer()
 	{
 		return this.PlayerList.get(this.PlayerTurn);
+	}
+
+	public ChessSlot GetBoardSlot(int X, int Y)
+	{
+		return this.GameBoard.GetSlot(new Position(X,Y));
+	}
+
+	public ChessSlot GetBoardSlot(int Flat)
+	{
+		int X = Flat % GameBoard.GetSizeX();
+		int Y = (int)(Flat / GameBoard.GetSizeX());
+		return GetBoardSlot(X,Y);
+	}
+
+	public int GetFlat(int X, int Y)
+	{
+		return Y*GameBoard.GetSizeX() + X;
+	}
+
+	public int GetBoardSize()
+	{
+		return GetFlat(GameBoard.GetSizeX(),GameBoard.GetSizeY()-1);
 	}
 }

@@ -29,9 +29,9 @@ public class MyrmidonRule extends ChessRule
 						int ChessTypeSize = ChessType.size() - 1;
 						for(int k = 0;k < ChessTypeSize;k++)
 						{
-							if (ChessType.get(i).GetName().equals(PieceName))
+							if (ChessType.get(k).GetName().equals(PieceName))
 							{
-								TempPiece.SetName(ChessType.get((i+1)%ChessTypeSize).GetName());
+								TempPiece.SetName(ChessType.get((k+1)%ChessTypeSize).GetName());
 							}
 						}
 					}
