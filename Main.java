@@ -92,6 +92,10 @@ public class Main
 		System.out.println("Current turn: " + MyrmidonGame.GetCurrentTurnPlayer().GetName());
 		System.out.println("Current round: " + MyrmidonGame.GetRound());
 
+		//Saving game
+		System.out.println("----- Saved game -----");
+		ChessSaveLoad.SaveGame(MyrmidonGame, "Testing");
+
 		//Move Triangle for player Foo to attack Bar's Triangle
 		FromSlot = MyrmidonGame.GetBoardSlot(1,2);
 		ToSlot = MyrmidonGame.GetBoardSlot(0,3);
@@ -111,11 +115,18 @@ public class Main
 		//Game restart with same players
 		MyrmidonGame.StartGame();
 
-		//Just to show that the game have restarted
-		//printboard();
-
 		//Game reset and need to re-add players
 		MyrmidonGame.ResetGame();
+
+		//Loading game
+		System.out.println("----- Loaded game -----");
+		ChessSaveLoad.LoadGame(MyrmidonGame, "Testing");
+
+		//To show game is loaded
+		printboard();
+		//Print round and turn
+		System.out.println("Current turn: " + MyrmidonGame.GetCurrentTurnPlayer().GetName());
+		System.out.println("Current round: " + MyrmidonGame.GetRound());
 	}
 
 	public static void autoplay()

@@ -49,7 +49,7 @@ public class MyrmidonRule extends ChessRule
 		
 	=====*/
 	
-	public Player CheckWin(ChessBoard GameBoard, ArrayList<Player> PlayerList)
+	public Player CheckWin(ArrayList<Player> PlayerList, ChessBoard GameBoard)
 	{
 		int PlayerListSize = PlayerList.size();
 		boolean[] SunPresent = new boolean[PlayerListSize];
@@ -88,9 +88,8 @@ public class MyrmidonRule extends ChessRule
 		return null;
 	}
 	
-	public ChessBoard Initiallize(ArrayList<Player> PlayerList)
+	public void Initiallize()
 	{
-		ChessBoard GameBoard = new ChessBoard(7,6);
 		//Presets chess type for the game
 		AddChessType("Plus");
 		AddChessType("Triangle");
@@ -123,7 +122,11 @@ public class MyrmidonRule extends ChessRule
 		{
 			if(i != 5) {AddChessMove("Sun", i, 1);}
 		}
-		
+	}
+
+	public ChessBoard PlaceBoard(ArrayList<Player> PlayerList)
+	{
+		ChessBoard GameBoard = new ChessBoard(7,6);
 		//Placing chess on the board for each player
 		String[] Sequence = {"Plus","Triangle","Chevron","Sun","Chevron","Triangle","Plus"};
 		for(int i = 0;i < GameBoard.GetSizeY();i += 5)

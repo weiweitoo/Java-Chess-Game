@@ -108,7 +108,8 @@ abstract public class ChessRule
 	//=====Abstract functions=====
 	
 	abstract public void RoundEvent(int RoundNumber, ChessBoard GameBoard);
-	abstract public Player CheckWin(ChessBoard GameBoard, ArrayList<Player> PlayerList);
-	abstract public ChessBoard Initiallize(ArrayList<Player> PlayerList);
+	abstract public Player CheckWin(ArrayList<Player> PlayerList, ChessBoard GameBoard);
+	abstract public void Initiallize();
+	abstract public ChessBoard PlaceBoard(ArrayList<Player> PlayerList);
 }
 

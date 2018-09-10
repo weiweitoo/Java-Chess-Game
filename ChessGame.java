@@ -4,7 +4,7 @@ import java.awt.Color;
 
 public class ChessGame
 {
-	public ChessRule CustomRule;
+	private ChessRule CustomRule;
 	
 	private ArrayList<Player> PlayerList = new ArrayList<Player>();
 	private int MaxPlayer = 0;
@@ -22,6 +22,7 @@ public class ChessGame
 	public ChessGame(ChessRule CustomRule)
 	{
 		this.CustomRule = CustomRule;
+		this.CustomRule.Initiallize();
 	}
 	
 	//Set max player for a game
@@ -131,7 +132,7 @@ public class ChessGame
 		FromSlot.RemoveChessPiece();
 		
 		//Check win
-		PlayerWinner = CustomRule.CheckWin(this.GameBoard, this.PlayerList);
+		PlayerWinner = CustomRule.CheckWin(this.PlayerList, this.GameBoard);
 		if (PlayerWinner != null)
 		{
 			this.GameRunning = false;
@@ -155,10 +156,15 @@ public class ChessGame
 
 	public void StartGame()
 	{
-		this.PlayerTurn = 0;
-		this.GameRound = 0;
+		StartGame(0,0,CustomRule.PlaceBoard(this.PlayerList));
+	}
+
+	public void StartGame(int PT, int GR, ChessBoard GB)
+	{
+		this.PlayerTurn = PT;
+		this.GameRound = GR;
 		this.PlayerWinner = null;
-		this.GameBoard = CustomRule.Initiallize(PlayerList);
+		this.GameBoard = GB;
 		this.GameRunning = true;
 	}
 	
@@ -173,6 +179,11 @@ public class ChessGame
 	}
 	
 	//=====Getter=====//
+	public boolean GetRunning()
+	{
+		return this.GameRunning;
+	}
+
 	public int GetPlayerTurn()
 	{
 		return this.PlayerTurn;
@@ -183,6 +194,23 @@ public class ChessGame
 		return this.GameRound;
 	}
 	
+	public Player GetPlayer(int Index)
+	{
+		return this.PlayerList.get(Index);
+	}
+
+	public Player GetPlayer(String Name)
+	{
+		for(int i = 0;i < this.PlayerList.size();i++)
+		{
+			if (this.PlayerList.get(i).GetName().equals(Name))
+			{
+				return this.PlayerList.get(i);
+			}
+		}
+		return null;
+	}
+
 	public Player GetWinner()
 	{
 		return this.PlayerWinner;
