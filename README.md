@@ -6,11 +6,17 @@ Tajam - Backend, Binding frontend with backend
 June - Frontend, Binding frontend with backend
 Too - Do reports, Testing
 ```
+### What's left?
+- Save-load functions
+- Restart function
+- Exit function
+- Maybe some extra features
+- Maybe some enhancements
 ### Checklist
 #### Coding
 - [x] Basic back-end functions
 - [x] Save-load functions
-- [ ] Front-end
+- [x] Front-end
 - [ ] Binding front-end with back-end (Everything works)
 #### Report
 - [ ] Documentation
