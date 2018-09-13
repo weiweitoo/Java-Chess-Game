@@ -72,6 +72,10 @@ public class ChessGame
 	//When player selected a slot
 	public boolean SelectsSlot(ChessSlot SelectedSlot)
 	{
+		if (!this.GameRunning)
+		{
+			return false;
+		}
 		ChessPiece TempPiece = SelectedSlot.GetChessPiece();
 		if (TempPiece == null)
 		{

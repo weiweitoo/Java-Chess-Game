@@ -118,7 +118,7 @@ public class MyrmidonRule extends ChessRule
 			if (i%2 != 0) {b *= -1;}
 		}
 		//Chess: Sun
-		for(int i = 0;i <= 9;i++)
+		for(int i = 1;i <= 9;i++)
 		{
 			if(i != 5) {AddChessMove("Sun", i, 1);}
 		}

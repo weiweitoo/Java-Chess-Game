@@ -1,5 +1,12 @@
 import java.util.*;
 import java.awt.Color;
+import java.awt.*;
+import javax.swing.*;
+import java.awt.event.*;
+import java.awt.image.BufferedImage;
+import javax.imageio.ImageIO;
+import java.io.*;
+import javax.*;
 
   /*================================================//
  // <!> This class is for testing purpose only <!> //
@@ -160,23 +167,26 @@ public class Main
 	}
 
 	public static void printboard()
-	{
+	{	
 		//GetBoardSize return the 1D size of game board
 		for(int n = 0;n < MyrmidonGame.GetBoardSize();n++)
 		{
 			//IMPORTANT: GetBoardSlot also accept 1D parameter
 			ChessSlot TempSlot = MyrmidonGame.GetBoardSlot(n);
 			ChessPiece TempPiece = TempSlot.GetChessPiece();
+			
 			//Print out the board on console
-			if (TempPiece != null)
+			if (TempPiece == null)
 			{
 				System.out.print(TempSlot.GetPosition().GetX() + ", " + TempSlot.GetPosition().GetY() + ": ");
 				System.out.println(TempPiece.GetName());
 			}
 			else
-			{
+			{	
 				System.out.println(TempSlot.GetPosition().GetX() + ", " + TempSlot.GetPosition().GetY() + ": Empty");
 			}
 		}
 	}
+
+
 }
