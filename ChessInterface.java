@@ -22,9 +22,9 @@ public class ChessInterface extends JFrame implements ActionListener{
 	private static JMenuBar menuBar = new JMenuBar();
 	private static JMenu menuItemGame = new JMenu("Game");
 	private static JMenuItem eMenuItemSave = new JMenuItem("Save Game");
+	private static JMenuItem eMenuItemSaveExit = new JMenuItem("Save Game and Exit");
 	private static JMenuItem eMenuItemLoad = new JMenuItem("Load Game");
 	private static JMenuItem eMenuItemRest = new JMenuItem("Restart");
-	private static JMenuItem eMenuItemExit = new JMenuItem("Exit");
 	private static JFileChooser fileChooser = new JFileChooser();
 
 	//Game variable
@@ -32,8 +32,10 @@ public class ChessInterface extends JFrame implements ActionListener{
 	private static boolean Selected = false; 
 
     ChessInterface()
-    {
+    {	
+
     	super("Chess application");
+    	dispose();
     	try{
     		chessIcon.put("PlusR", 		ImageIO.read(new File("Assets/PlusR.png")));
 			chessIcon.put("TriangleR", 	ImageIO.read(new File("Assets/TriangleR.png")));
@@ -51,7 +53,24 @@ public class ChessInterface extends JFrame implements ActionListener{
 		initMenu();
         setSize(500,500);
         setVisible(true);
-		setDefaultCloseOperation(EXIT_ON_CLOSE);
+
+		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+		addWindowListener( new WindowAdapter()
+		{
+		    public void windowClosing(WindowEvent e)
+		    {
+		        JFrame frame = (JFrame)e.getSource();
+		 
+		        int result = JOptionPane.showConfirmDialog(
+		            mainPanel,
+		            "Are you sure you want to exit the application?",
+		            "Exit Application",
+		            JOptionPane.YES_NO_OPTION);
+		 
+		        if (result == JOptionPane.YES_OPTION)
+		            setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		    }
+		});
     }
 	
 	public void actionPerformed(ActionEvent e) {
@@ -107,9 +126,9 @@ public class ChessInterface extends JFrame implements ActionListener{
 	
 	private void initMenu(){
 		menuItemGame.add(eMenuItemSave);
+		menuItemGame.add(eMenuItemSaveExit);
 		menuItemGame.add(eMenuItemLoad);
 		menuItemGame.add(eMenuItemRest);
-		menuItemGame.add(eMenuItemExit);
 		menuBar.add(menuItemGame);
 		subPanel.add(msgLable);
 		topPanel.add(menuBar);
@@ -136,6 +155,26 @@ public class ChessInterface extends JFrame implements ActionListener{
 			}
 		});
 
+		eMenuItemSaveExit.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e){
+				try{
+					ChessSaveLoad.SaveGame(MyrmidonGame,"MyrmidonGame Saved " + new SimpleDateFormat("HH.mm.ss-dd-MM-yyyy").format(new Date()));
+					JOptionPane.showMessageDialog(mainPanel,
+					    "Game saved successfully",
+					    "Success",
+					    JOptionPane.PLAIN_MESSAGE);	
+				}
+				catch(Exception error){
+					JOptionPane.showMessageDialog(mainPanel,
+						"Error. Game cannot be saved! ",
+						"Warning",
+						JOptionPane.WARNING_MESSAGE);
+				}
+
+				System.exit(0);
+			}
+		});
+
 		eMenuItemLoad.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e){
 				try{
@@ -143,9 +182,19 @@ public class ChessInterface extends JFrame implements ActionListener{
 					int result = fileChooser.showOpenDialog(mainPanel);
 					if (result == JFileChooser.APPROVE_OPTION) {
 					    File selectedFile = fileChooser.getSelectedFile();
+					    MyrmidonGame.ResetGame();
 					    ChessSaveLoad.LoadGame(MyrmidonGame,selectedFile.getAbsolutePath());
 					    System.out.println("Selected file: " + selectedFile.getAbsolutePath());
-					}	
+					}
+					refresh(MyrmidonGame.GetPlayerTurn());
+					if (MyrmidonGame.GetPlayerTurn() == 0)
+					{
+						msgLable.setText("Game loaded! Red Player turn.");
+					}
+					else
+					{
+						msgLable.setText("Game loaded! Blue Player turn.");
+					}
 					JOptionPane.showMessageDialog(mainPanel,
 					    "Game loaded is successfully",
 					    "Success",
@@ -157,6 +206,14 @@ public class ChessInterface extends JFrame implements ActionListener{
 						"Warning",
 						JOptionPane.WARNING_MESSAGE);
 				}
+			}
+		});
+
+		eMenuItemRest.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e){
+				MyrmidonGame.StartGame();
+				refresh(MyrmidonGame.GetPlayerTurn());
+				msgLable.setText("Game restarted! Red Player turn.");
 			}
 		});
 	}
@@ -234,24 +291,28 @@ public class ChessInterface extends JFrame implements ActionListener{
 		mainPanel.add(btn);
 	}
 
+	public static void mainStart(){
+		MyrmidonGame.SetMaxPlayer(2);
+		//Set players name
+		String P1Name = "R";
+		String P2Name = "B";
+
+		//Set players colour
+		Color P1Color = new Color(255,0,0);
+		Color P2Color = new Color(0,0,255);
+
+		//Add players into the game
+		MyrmidonGame.MakePlayer(P1Name, P1Color);
+		MyrmidonGame.MakePlayer(P2Name, P2Color);
+
+		//Start the game (Game board will initiate)
+		MyrmidonGame.StartGame();
+		new ChessInterface();
+	}
+
    	public static void main(String[] args){
-   	MyrmidonGame.SetMaxPlayer(2);
+   		mainStart();
 
-	//Set players name
-	String P1Name = "R";
-	String P2Name = "B";
-
-	//Set players colour
-	Color P1Color = new Color(255,0,0);
-	Color P2Color = new Color(0,0,255);
-
-	//Add players into the game
-	MyrmidonGame.MakePlayer(P1Name, P1Color);
-	MyrmidonGame.MakePlayer(P2Name, P2Color);
-
-	//Start the game (Game board will initiate)
-	MyrmidonGame.StartGame();
-   	new ChessInterface();
    }
 	
 }
