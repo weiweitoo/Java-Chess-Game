@@ -6,58 +6,48 @@ import javax.imageio.ImageIO;
 import java.util.*;
 import java.io.*;
 import javax.*;
+import java.text.SimpleDateFormat;
 
 public class ChessInterface extends JFrame implements ActionListener{
-		//GUI variable
-		private static JPanel mainPanel = new JPanel(new GridLayout(6,7));
-		private static JPanel subPanel = new JPanel(new FlowLayout());
-		private static JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+	//GUI variable
+	private static JPanel mainPanel = new JPanel(new GridLayout(6,7));
+	private static JPanel subPanel = new JPanel(new FlowLayout());
+	private static JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
 
-		private static HashMap<JButton, Integer> chessButton = new HashMap<>();
-		private static HashMap<Integer, JButton> chessButtonKey = new HashMap<>();
-		private static HashMap<String, BufferedImage> chessIcon = new HashMap<>();
-		private static JLabel msgLable = new JLabel("Game start! Red first.");
-		
-		private static JMenuBar menuBar = new JMenuBar();
-		private static JMenu menuItemGame = new JMenu("Game");
-		private static JMenuItem eMenuItemSave = new JMenuItem("Save Game");
-		private static JMenuItem eMenuItemLoad = new JMenuItem("Load Game");
-		private static JMenuItem eMenuItemRest = new JMenuItem("Restart");
-		private static JMenuItem eMenuItemExit = new JMenuItem("Exit");
+	private static HashMap<JButton, Integer> chessButton = new HashMap<>();
+	private static HashMap<Integer, JButton> chessButtonKey = new HashMap<>();
+	private static HashMap<String, BufferedImage> chessIcon = new HashMap<>();
+	private static JLabel msgLable = new JLabel("Game start! Red first.");
+	
+	private static JMenuBar menuBar = new JMenuBar();
+	private static JMenu menuItemGame = new JMenu("Game");
+	private static JMenuItem eMenuItemSave = new JMenuItem("Save Game");
+	private static JMenuItem eMenuItemLoad = new JMenuItem("Load Game");
+	private static JMenuItem eMenuItemRest = new JMenuItem("Restart");
+	private static JMenuItem eMenuItemExit = new JMenuItem("Exit");
 
-		//Game variable
-		private static ChessGame MyrmidonGame = new ChessGame(new MyrmidonRule());
-		private static boolean Selected = false; 
+	//Game variable
+	private static ChessGame MyrmidonGame = new ChessGame(new MyrmidonRule());
+	private static boolean Selected = false; 
 
-	    ChessInterface()
-	    {
-	    	super("Chess application");
-	    	try{
-	    		chessIcon.put("PlusR", 		ImageIO.read(new File("Assets/PlusR.png")));
-				chessIcon.put("TriangleR", 	ImageIO.read(new File("Assets/TriangleR.png")));
-				chessIcon.put("ChevronR", 	ImageIO.read(new File("Assets/ChevronR.png")));
-				chessIcon.put("SunR", 		ImageIO.read(new File("Assets/SunR.png")));
-				chessIcon.put("PlusB", 		ImageIO.read(new File("Assets/PlusB.png")));
-				chessIcon.put("TriangleB",	ImageIO.read(new File("Assets/TriangleB.png")));
-				chessIcon.put("ChevronB",	ImageIO.read(new File("Assets/ChevronB.png")));
-				chessIcon.put("SunB",		ImageIO.read(new File("Assets/SunB.png")));
-	    	}catch(IOException e){
-	    		//handler
-	    	}
+    ChessInterface()
+    {
+    	super("Chess application");
+    	try{
+    		chessIcon.put("PlusR", 		ImageIO.read(new File("Assets/PlusR.png")));
+			chessIcon.put("TriangleR", 	ImageIO.read(new File("Assets/TriangleR.png")));
+			chessIcon.put("ChevronR", 	ImageIO.read(new File("Assets/ChevronR.png")));
+			chessIcon.put("SunR", 		ImageIO.read(new File("Assets/SunR.png")));
+			chessIcon.put("PlusB", 		ImageIO.read(new File("Assets/PlusB.png")));
+			chessIcon.put("TriangleB",	ImageIO.read(new File("Assets/TriangleB.png")));
+			chessIcon.put("ChevronB",	ImageIO.read(new File("Assets/ChevronB.png")));
+			chessIcon.put("SunB",		ImageIO.read(new File("Assets/SunB.png")));
+    	}catch(IOException e){
+    		//handler
+    	}
 
 		initiallize(MyrmidonGame.GetPlayerTurn());
-		menuItemGame.add(eMenuItemSave);
-		menuItemGame.add(eMenuItemLoad);
-		menuItemGame.add(eMenuItemRest);
-		menuItemGame.add(eMenuItemExit);
-		menuBar.add(menuItemGame);
-		subPanel.add(msgLable);
-		topPanel.add(menuBar);
-		this.setLayout(new BorderLayout());
-		this.add(mainPanel, BorderLayout.CENTER);
-		this.add(subPanel, BorderLayout.SOUTH);
-		this.add(topPanel, BorderLayout.NORTH);
-		
+		initMenu();
         setSize(500,500);
         setVisible(true);
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -114,6 +104,26 @@ public class ChessInterface extends JFrame implements ActionListener{
 		}
 	}
 	
+	private void initMenu(){
+		menuItemGame.add(eMenuItemSave);
+		menuItemGame.add(eMenuItemLoad);
+		menuItemGame.add(eMenuItemRest);
+		menuItemGame.add(eMenuItemExit);
+		menuBar.add(menuItemGame);
+		subPanel.add(msgLable);
+		topPanel.add(menuBar);
+		this.setLayout(new BorderLayout());
+		this.add(mainPanel, BorderLayout.CENTER);
+		this.add(subPanel, BorderLayout.SOUTH);
+		this.add(topPanel, BorderLayout.NORTH);
+
+		eMenuItemSave.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e){
+				ChessSaveLoad.SaveGame(MyrmidonGame,"MyrmidonGameSaved" + new SimpleDateFormat("HH:mm:ss-dd/MM/yyyy").format(new Date()));
+			}
+		});
+	}
+
 	private void refresh(int flip)
 	{
 		mainPanel.removeAll();
