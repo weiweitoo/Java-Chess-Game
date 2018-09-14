@@ -101,7 +101,15 @@ public class Main
 
 		//Saving game
 		System.out.println("----- Saved game -----");
-		ChessSaveLoad.SaveGame(MyrmidonGame, "Testing");
+		try
+		{
+			ChessSaveLoad.SaveGame(MyrmidonGame, "Testing");
+		}
+		catch(FileNotFoundException e)
+		{
+			//Handle exception...
+		}
+		
 
 		//Move Triangle for player Foo to attack Bar's Triangle
 		FromSlot = MyrmidonGame.GetBoardSlot(1,2);
@@ -127,7 +135,14 @@ public class Main
 
 		//Loading game
 		System.out.println("----- Loaded game -----");
-		ChessSaveLoad.LoadGame(MyrmidonGame, "Testing");
+		try
+		{
+			ChessSaveLoad.LoadGame(MyrmidonGame, "Testing");
+		}
+		catch(FileNotFoundException e)
+		{
+			//Handle exception...
+		}
 
 		//To show game is loaded
 		printboard();

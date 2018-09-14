@@ -182,7 +182,6 @@ public class ChessInterface extends JFrame implements ActionListener{
 					int result = fileChooser.showOpenDialog(mainPanel);
 					if (result == JFileChooser.APPROVE_OPTION) {
 					    File selectedFile = fileChooser.getSelectedFile();
-					    MyrmidonGame.ResetGame();
 					    ChessSaveLoad.LoadGame(MyrmidonGame,selectedFile.getAbsolutePath());
 					    System.out.println("Selected file: " + selectedFile.getAbsolutePath());
 					}

@@ -1,7 +1,7 @@
 import java.util.*;
-import java.io.*;
 import java.io.PrintWriter;
 import java.io.File;
+import java.io.*;
 import java.awt.Color;
 
 public class ChessSaveLoad
@@ -26,8 +26,12 @@ public class ChessSaveLoad
 	<Player name> (0 if empty)
 	*/
 
-	public static void SaveGame(ChessGame Game, String FileName)
+	public static void SaveGame(ChessGame Game, String FileName) throws FileNotFoundException
 	{
+		if (!Game.GetRunning())
+		{
+			throw new FileNotFoundException("Game is not running!");
+		}
 		File file = new File("./Saves/" + FileName + ".myrsav");
 		PrintWriter Writer;
 		try
@@ -36,8 +40,7 @@ public class ChessSaveLoad
 		}
 		catch(FileNotFoundException e)
 		{
-			System.out.println(e);
-			return;
+			throw new FileNotFoundException(e.toString());
 		}
 
 		Writer.println(Game.GetPlayer(0).GetName());
@@ -61,9 +64,8 @@ public class ChessSaveLoad
 		Writer.close();
 	}
 
-	public static void LoadGame(ChessGame Game, String FileName)
+	public static void LoadGame(ChessGame Game, String FileName) throws FileNotFoundException
 	{
-		Game.ResetGame();
 		File file = new File(FileName);
 		Scanner FileRead;
 		try
@@ -72,10 +74,10 @@ public class ChessSaveLoad
 		}
 		catch(FileNotFoundException e)
 		{
-			System.out.println(e);
-			return;
+			throw new FileNotFoundException(e.toString());
 		}
-		
+
+		Game.ResetGame();
 		String P1Name = FileRead.nextLine();
 		String P2Name = FileRead.nextLine();
 
