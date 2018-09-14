@@ -119,7 +119,7 @@ public class ChessInterface extends JFrame implements ActionListener{
 
 		eMenuItemSave.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e){
-				ChessSaveLoad.SaveGame(MyrmidonGame,"MyrmidonGameSaved" + new SimpleDateFormat("HH:mm:ss-dd/MM/yyyy").format(new Date()));
+				ChessSaveLoad.SaveGame(MyrmidonGame,"MyrmidonGame Saved " + new SimpleDateFormat("HH.mm.ss-dd-MM-yyyy").format(new Date()));
 			}
 		});
 	}
