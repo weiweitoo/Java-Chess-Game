@@ -64,7 +64,7 @@ public class ChessSaveLoad
 	public static void LoadGame(ChessGame Game, String FileName)
 	{
 		Game.ResetGame();
-		File file = new File("./Saves/" + FileName + ".myrsav");
+		File file = new File(FileName);
 		Scanner FileRead;
 		try
 		{

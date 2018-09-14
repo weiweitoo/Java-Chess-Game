@@ -25,6 +25,7 @@ public class ChessInterface extends JFrame implements ActionListener{
 	private static JMenuItem eMenuItemLoad = new JMenuItem("Load Game");
 	private static JMenuItem eMenuItemRest = new JMenuItem("Restart");
 	private static JMenuItem eMenuItemExit = new JMenuItem("Exit");
+	private static JFileChooser fileChooser = new JFileChooser();
 
 	//Game variable
 	private static ChessGame MyrmidonGame = new ChessGame(new MyrmidonRule());
@@ -119,7 +120,43 @@ public class ChessInterface extends JFrame implements ActionListener{
 
 		eMenuItemSave.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e){
-				ChessSaveLoad.SaveGame(MyrmidonGame,"MyrmidonGame Saved " + new SimpleDateFormat("HH.mm.ss-dd-MM-yyyy").format(new Date()));
+				try{
+					ChessSaveLoad.SaveGame(MyrmidonGame,"MyrmidonGame Saved " + new SimpleDateFormat("HH.mm.ss-dd-MM-yyyy").format(new Date()));
+					JOptionPane.showMessageDialog(mainPanel,
+					    "Game saved successfully",
+					    "Success",
+					    JOptionPane.PLAIN_MESSAGE);	
+				}
+				catch(Exception error){
+					JOptionPane.showMessageDialog(mainPanel,
+						"Error. Game cannot be saved! ",
+						"Warning",
+						JOptionPane.WARNING_MESSAGE);
+				}
+			}
+		});
+
+		eMenuItemLoad.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e){
+				try{
+					fileChooser.setCurrentDirectory(new File(System.getProperty("user.home")));
+					int result = fileChooser.showOpenDialog(mainPanel);
+					if (result == JFileChooser.APPROVE_OPTION) {
+					    File selectedFile = fileChooser.getSelectedFile();
+					    ChessSaveLoad.LoadGame(MyrmidonGame,selectedFile.getAbsolutePath());
+					    System.out.println("Selected file: " + selectedFile.getAbsolutePath());
+					}	
+					JOptionPane.showMessageDialog(mainPanel,
+					    "Game loaded is successfully",
+					    "Success",
+					    JOptionPane.PLAIN_MESSAGE);
+				}
+				catch(Exception error){
+					JOptionPane.showMessageDialog(mainPanel,
+						"Error. Game cannot be load! ",
+						"Warning",
+						JOptionPane.WARNING_MESSAGE);
+				}
 			}
 		});
 	}
