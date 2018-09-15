@@ -16,7 +16,7 @@ Too - Do reports, Testing
 - [x] Binding front-end with back-end (Everything works)
 - [ ] Extra features?
 #### Report
-- [ ] Documentation
+- [x] Documentation
 - [x] UML diagram
 - [x] Use case diagram
-- [ ] Sequence diagram
+- [x] Sequence diagram
