@@ -18,5 +18,5 @@ Too - Do reports, Testing
 #### Report
 - [ ] Documentation
 - [x] UML diagram
-- [ ] Use case diagram
+- [x] Use case diagram
 - [ ] Sequence diagram
