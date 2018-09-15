@@ -1,33 +1,300 @@
-import java.util.*;
-import java.awt.Color;
 import java.awt.*;
 import javax.swing.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import javax.imageio.ImageIO;
+import java.util.*;
 import java.io.*;
 import javax.*;
+import java.text.SimpleDateFormat;
 
-  /*================================================//
- // <!> This class is for testing purpose only <!> //
-//================================================*/
+public class Main extends JFrame implements ActionListener{
+	//GUI variable
+	private static JPanel mainPanel = new JPanel(new GridLayout(6,7));
+	private static JPanel subPanel = new JPanel(new FlowLayout());
+	private static JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
 
-//PS: Also a demo of how to use my classes
-//Terrible classes
+	private static HashMap<JButton, Integer> chessButton = new HashMap<>();
+	private static HashMap<Integer, JButton> chessButtonKey = new HashMap<>();
+	private static HashMap<String, BufferedImage> chessIcon = new HashMap<>();
+	private static JLabel msgLable = new JLabel("Game start! Red first.");
+	
+	private static JMenuBar menuBar = new JMenuBar();
+	private static JMenu menuItemGame = new JMenu("Game");
+	private static JMenuItem eMenuItemSave = new JMenuItem("Save Game");
+	private static JMenuItem eMenuItemSaveExit = new JMenuItem("Save Game and Exit");
+	private static JMenuItem eMenuItemLoad = new JMenuItem("Load Game");
+	private static JMenuItem eMenuItemRest = new JMenuItem("Restart");
+	private static JFileChooser fileChooser = new JFileChooser();
 
-public class Main
-{
-	//Instantiate the game
-	public static ChessGame MyrmidonGame = new ChessGame(new MyrmidonRule());
+	//Game variable
+	private static ChessGame MyrmidonGame = new ChessGame(new MyrmidonRule());
+	private static boolean Selected = false; 
 
-	public static void main(String[] args)
+    Main()
+    {	
+
+    	super("Chess application");
+    	dispose();
+    	try{
+    		chessIcon.put("PlusR", 		ImageIO.read(new File("Assets/PlusR.png")));
+			chessIcon.put("TriangleR", 	ImageIO.read(new File("Assets/TriangleR.png")));
+			chessIcon.put("ChevronR", 	ImageIO.read(new File("Assets/ChevronR.png")));
+			chessIcon.put("SunR", 		ImageIO.read(new File("Assets/SunR.png")));
+			chessIcon.put("PlusB", 		ImageIO.read(new File("Assets/PlusB.png")));
+			chessIcon.put("TriangleB",	ImageIO.read(new File("Assets/TriangleB.png")));
+			chessIcon.put("ChevronB",	ImageIO.read(new File("Assets/ChevronB.png")));
+			chessIcon.put("SunB",		ImageIO.read(new File("Assets/SunB.png")));
+    	}catch(IOException e){
+    		//handler
+    	}
+
+		initiallize(MyrmidonGame.GetPlayerTurn());
+		initMenu();
+        setSize(500,500);
+        setVisible(true);
+
+		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+		addWindowListener( new WindowAdapter()
+		{
+		    public void windowClosing(WindowEvent e)
+		    {
+		        JFrame frame = (JFrame)e.getSource();
+		 
+		        int result = JOptionPane.showConfirmDialog(
+		            mainPanel,
+		            "Are you sure you want to exit the application?",
+		            "Exit Application",
+		            JOptionPane.YES_NO_OPTION);
+		 
+		        if (result == JOptionPane.YES_OPTION)
+		            setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		    }
+		});
+    }
+	
+	public void actionPerformed(ActionEvent e) {
+		JButton btn = (JButton)e.getSource();
+		ChessSlot SelectedSlot = MyrmidonGame.GetBoardSlot(chessButton.get(btn));
+		if(!this.Selected)
+		{
+			//Selecting Chess
+			this.Selected = MyrmidonGame.SelectsSlot(SelectedSlot);
+			if(this.Selected)
+			{
+				btn.setBackground(new Color(0,255,0));
+				ArrayList<ChessSlot> MovesBuffer = MyrmidonGame.GetValidMovesBuffer();
+				Iterator Itr =  MovesBuffer.iterator();
+				while(Itr.hasNext())
+				{
+					ChessSlot TempSlot = (ChessSlot)Itr.next();
+					Position TempPos = TempSlot.GetPosition();
+					JButton temp_btn = chessButtonKey.get(MyrmidonGame.GetFlat(TempPos.GetX(),TempPos.GetY()));
+					temp_btn.setBackground(new Color(255,255,0));
+				}
+			}
+			return;
+		}
+		//Moving Chess
+		boolean moved = MyrmidonGame.MovesChess(SelectedSlot);
+		this.Selected = false;
+		refresh(MyrmidonGame.GetPlayerTurn());
+		if(moved)
+		{
+			Player winner = MyrmidonGame.GetWinner();
+			if (winner != null)
+			{
+				String pname = winner.GetName();
+				if (pname.equals("R"))
+				{pname = "Red Player";}
+				else
+				{pname = "Blue Player";}
+				msgLable.setText("The winner is " + pname + "!");
+				Position TempPos = SelectedSlot.GetPosition();
+				JButton temp_btn = chessButtonKey.get(MyrmidonGame.GetFlat(TempPos.GetX(),TempPos.GetY()));
+				temp_btn.setBackground(new Color(255,0,0));
+				return;
+			}
+			String pname = MyrmidonGame.GetCurrentTurnPlayer().GetName();
+			if (pname.equals("R"))
+			{pname = "Red Player";}
+			else
+			{pname = "Blue Player";}
+			msgLable.setText("Current turn for " + pname + ".");
+		}
+	}
+	
+	private void initMenu(){
+		menuItemGame.add(eMenuItemSave);
+		menuItemGame.add(eMenuItemSaveExit);
+		menuItemGame.add(eMenuItemLoad);
+		menuItemGame.add(eMenuItemRest);
+		menuBar.add(menuItemGame);
+		subPanel.add(msgLable);
+		topPanel.add(menuBar);
+		this.setLayout(new BorderLayout());
+		this.add(mainPanel, BorderLayout.CENTER);
+		this.add(subPanel, BorderLayout.SOUTH);
+		this.add(topPanel, BorderLayout.NORTH);
+
+		eMenuItemSave.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e){
+				try{
+					ChessSaveLoad.SaveGame(MyrmidonGame,"MyrmidonGame Saved " + new SimpleDateFormat("HH.mm.ss-dd-MM-yyyy").format(new Date()));
+					JOptionPane.showMessageDialog(mainPanel,
+					    "Game saved successfully",
+					    "Success",
+					    JOptionPane.PLAIN_MESSAGE);	
+				}
+				catch(Exception error){
+					JOptionPane.showMessageDialog(mainPanel,
+						"Error. Game cannot be saved! ",
+						"Warning",
+						JOptionPane.WARNING_MESSAGE);
+				}
+			}
+		});
+
+		eMenuItemSaveExit.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e){
+				try{
+					ChessSaveLoad.SaveGame(MyrmidonGame,"MyrmidonGame Saved " + new SimpleDateFormat("HH.mm.ss-dd-MM-yyyy").format(new Date()));
+					JOptionPane.showMessageDialog(mainPanel,
+					    "Game saved successfully",
+					    "Success",
+					    JOptionPane.PLAIN_MESSAGE);	
+				}
+				catch(Exception error){
+					JOptionPane.showMessageDialog(mainPanel,
+						"Error. Game cannot be saved! ",
+						"Warning",
+						JOptionPane.WARNING_MESSAGE);
+				}
+
+				System.exit(0);
+			}
+		});
+
+		eMenuItemLoad.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e){
+				try{
+					fileChooser.setCurrentDirectory(new File(System.getProperty("user.home")));
+					int result = fileChooser.showOpenDialog(mainPanel);
+					if (result == JFileChooser.APPROVE_OPTION) {
+					    File selectedFile = fileChooser.getSelectedFile();
+					    ChessSaveLoad.LoadGame(MyrmidonGame,selectedFile.getAbsolutePath());
+					    System.out.println("Selected file: " + selectedFile.getAbsolutePath());
+					}
+					refresh(MyrmidonGame.GetPlayerTurn());
+					if (MyrmidonGame.GetPlayerTurn() == 0)
+					{
+						msgLable.setText("Game loaded! Red Player turn.");
+					}
+					else
+					{
+						msgLable.setText("Game loaded! Blue Player turn.");
+					}
+					JOptionPane.showMessageDialog(mainPanel,
+					    "Game loaded is successfully",
+					    "Success",
+					    JOptionPane.PLAIN_MESSAGE);
+				}
+				catch(Exception error){
+					JOptionPane.showMessageDialog(mainPanel,
+						"Error. Game cannot be load! ",
+						"Warning",
+						JOptionPane.WARNING_MESSAGE);
+				}
+			}
+		});
+
+		eMenuItemRest.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e){
+				MyrmidonGame.StartGame();
+				refresh(MyrmidonGame.GetPlayerTurn());
+				msgLable.setText("Game restarted! Red Player turn.");
+			}
+		});
+	}
+
+	private void refresh(int flip)
 	{
-		//Set max player number of this game
-		MyrmidonGame.SetMaxPlayer(2);
+		mainPanel.removeAll();
+		initiallize(flip);
+		revalidate();
+		repaint();
+	}
 
+	private void initiallize(int flip)
+	{
+		if (flip == 1)
+		{
+			for(int i = 0;i < MyrmidonGame.GetBoardSize();i++) {
+				_init_(i);
+			}
+		}
+		else
+		{
+			for(int i = MyrmidonGame.GetBoardSize()-1;i >= 0;i--) {
+				_init_(i);
+			}
+		}
+	}
+
+	private void _init_(int i)
+	{
+		ChessSlot TempSlot = MyrmidonGame.GetBoardSlot(i);
+		ChessPiece TempPiece = TempSlot.GetChessPiece();
+		final BufferedImage chessIconFinal;
+		
+		if(TempPiece == null){
+			chessIconFinal = null;
+		}
+		else{
+			String pname = TempPiece.GetName();
+			String pcolor = TempPiece.GetPlayer().GetName();
+			chessIconFinal = chessIcon.get(pname+pcolor);
+		}
+		
+		JButton btn = new JButton(){
+			@Override
+			public Dimension getPreferredSize(){
+				return new Dimension(90, 50);
+			}
+		};
+		chessButton.put(btn,i);
+		chessButtonKey.put(i,btn);
+		btn.addComponentListener(new ComponentAdapter() {
+		@Override
+	       public void componentResized(ComponentEvent e) {
+	            JButton btn = (JButton) e.getComponent();
+	            Dimension size = btn.getSize();
+	            Insets insets = btn.getInsets();
+	            size.width -= insets.left + insets.right;
+	            size.height -= insets.top + insets.bottom;
+	            if (size.width > size.height) {
+	                size.width = -1;
+	            } else {
+	                size.height = -1;
+	            }
+	            if (chessIconFinal != null)
+	            {
+	         		Image iconImage = (Image)chessIconFinal;
+	      			Image scaled = iconImage.getScaledInstance(size.width, size.height, java.awt.Image.SCALE_SMOOTH);
+	           		btn.setIcon(new ImageIcon(scaled));
+	            }
+	        }
+	    });
+	    btn.setBackground(new Color(255,255,255));
+		btn.addActionListener(this);
+		mainPanel.add(btn);
+	}
+
+   	public static void main(String[] args){
+   		MyrmidonGame.SetMaxPlayer(2);
 		//Set players name
-		String P1Name = "Foo";
-		String P2Name = "Bar";
+		String P1Name = "R";
+		String P2Name = "B";
 
 		//Set players colour
 		Color P1Color = new Color(255,0,0);
@@ -39,169 +306,8 @@ public class Main
 
 		//Start the game (Game board will initiate)
 		MyrmidonGame.StartGame();
-
-		//Example of moving chess turn by turn
-		ChessSlot FromSlot;
-		ChessSlot ToSlot;
-
-		//Move Plus for player Foo
-		FromSlot = MyrmidonGame.GetBoardSlot(0,0);
-		ToSlot = MyrmidonGame.GetBoardSlot(0,2);
-		//When player selected a slot
-		//It will return true if there is a chess in the slot and is owned by player of current turn
-		System.out.println(MyrmidonGame.SelectsSlot(FromSlot));
-
-		//After selection, all of the valid moves will store in a buffer
-		//The buffered valid move can be retrive for use
-		ArrayList<ChessSlot> MovesBuffer = MyrmidonGame.GetValidMovesBuffer();
-		//Print all valid move
-		Iterator Itr =  MovesBuffer.iterator();
-		while(Itr.hasNext())
-		{
-			ChessSlot TempSlot = (ChessSlot)Itr.next();
-			Position TempPos = TempSlot.GetPosition();
-			System.out.println("Valid move: (" + TempPos.GetX() + ", " + TempPos.GetY() + ")");
-		}
-
-		//When player attepmt to make a move
-		//It will return true if the move is successful
-		System.out.println(MyrmidonGame.MovesChess(ToSlot));
-
-		//Every successful move will change player turn automatically
-
-		//Move Triangle for player Bar
-		FromSlot = MyrmidonGame.GetBoardSlot(5,5);
-		ToSlot = MyrmidonGame.GetBoardSlot(3,3);
-		System.out.println(MyrmidonGame.SelectsSlot(FromSlot));
-		System.out.println(MyrmidonGame.MovesChess(ToSlot));
-
-		//Move Plus for player Foo but failed
-		FromSlot = MyrmidonGame.GetBoardSlot(6,0);
-		ToSlot = MyrmidonGame.GetBoardSlot(5,1);
-		System.out.println(MyrmidonGame.SelectsSlot(FromSlot));
-		System.out.println(MyrmidonGame.MovesChess(ToSlot));
-
-		//Print round and turn
-		System.out.println("Current turn: " + MyrmidonGame.GetCurrentTurnPlayer().GetName());
-		System.out.println("Current round: " + MyrmidonGame.GetRound());
-
-		//Please read the comments in functions
-		printboard();
-
-		//Play for few rounds...
-		autoplay();
-
-		//3 rounds have passed
-		//Round event handler changed chess type accordingly
-		printboard();
-
-		//Print round and turn
-		System.out.println("Current turn: " + MyrmidonGame.GetCurrentTurnPlayer().GetName());
-		System.out.println("Current round: " + MyrmidonGame.GetRound());
-
-		//Saving game
-		System.out.println("----- Saved game -----");
-		try
-		{
-			ChessSaveLoad.SaveGame(MyrmidonGame, "Testing");
-		}
-		catch(FileNotFoundException e)
-		{
-			//Handle exception...
-		}
-		
-
-		//Move Triangle for player Foo to attack Bar's Triangle
-		FromSlot = MyrmidonGame.GetBoardSlot(1,2);
-		ToSlot = MyrmidonGame.GetBoardSlot(0,3);
-		System.out.println(MyrmidonGame.SelectsSlot(FromSlot));
-		System.out.println(MyrmidonGame.MovesChess(ToSlot));
-
-		//Move Chevron for player Bar to attack Foo's Sun
-		FromSlot = MyrmidonGame.GetBoardSlot(4,2);
-		ToSlot = MyrmidonGame.GetBoardSlot(3,0);
-		System.out.println(MyrmidonGame.SelectsSlot(FromSlot));
-		System.out.println(MyrmidonGame.MovesChess(ToSlot));
-
-		//Foo's Sun is killed
-		//Bar is the winner of the game
-		System.out.println("The winner: " + MyrmidonGame.GetWinner().GetName());
-
-		//Game restart with same players
-		MyrmidonGame.StartGame();
-
-		//Game reset and need to re-add players
-		MyrmidonGame.ResetGame();
-
-		//Loading game
-		System.out.println("----- Loaded game -----");
-		try
-		{
-			ChessSaveLoad.LoadGame(MyrmidonGame, "Testing");
-		}
-		catch(FileNotFoundException e)
-		{
-			//Handle exception...
-		}
-
-		//To show game is loaded
-		printboard();
-		//Print round and turn
-		System.out.println("Current turn: " + MyrmidonGame.GetCurrentTurnPlayer().GetName());
-		System.out.println("Current round: " + MyrmidonGame.GetRound());
-	}
-
-	public static void autoplay()
-	{
-		ChessSlot FromSlot;
-		ChessSlot ToSlot;
-
-		//Move Plus for player Foo
-		FromSlot = MyrmidonGame.GetBoardSlot(0,2);
-		ToSlot = MyrmidonGame.GetBoardSlot(1,2);
-		System.out.println(MyrmidonGame.SelectsSlot(FromSlot));
-		System.out.println(MyrmidonGame.MovesChess(ToSlot));
-
-		//Move Triangle for player Bar
-		FromSlot = MyrmidonGame.GetBoardSlot(3,3);
-		ToSlot = MyrmidonGame.GetBoardSlot(4,2);
-		System.out.println(MyrmidonGame.SelectsSlot(FromSlot));
-		System.out.println(MyrmidonGame.MovesChess(ToSlot));
-
-		//Move Chevron for player Foo
-		FromSlot = MyrmidonGame.GetBoardSlot(2,0);
-		ToSlot = MyrmidonGame.GetBoardSlot(4,1);
-		System.out.println(MyrmidonGame.SelectsSlot(FromSlot));
-		System.out.println(MyrmidonGame.MovesChess(ToSlot));
-
-		//Move Plus for player Bar
-		FromSlot = MyrmidonGame.GetBoardSlot(0,5);
-		ToSlot = MyrmidonGame.GetBoardSlot(0,3);
-		System.out.println(MyrmidonGame.SelectsSlot(FromSlot));
-		System.out.println(MyrmidonGame.MovesChess(ToSlot));
-	}
-
-	public static void printboard()
-	{	
-		//GetBoardSize return the 1D size of game board
-		for(int n = 0;n < MyrmidonGame.GetBoardSize();n++)
-		{
-			//IMPORTANT: GetBoardSlot also accept 1D parameter
-			ChessSlot TempSlot = MyrmidonGame.GetBoardSlot(n);
-			ChessPiece TempPiece = TempSlot.GetChessPiece();
-			
-			//Print out the board on console
-			if (TempPiece == null)
-			{
-				System.out.print(TempSlot.GetPosition().GetX() + ", " + TempSlot.GetPosition().GetY() + ": ");
-				System.out.println(TempPiece.GetName());
-			}
-			else
-			{	
-				System.out.println(TempSlot.GetPosition().GetX() + ", " + TempSlot.GetPosition().GetY() + ": Empty");
-			}
-		}
-	}
-
-
+		new Main();
+   }
+	
 }
+
