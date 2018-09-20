@@ -28,7 +28,7 @@ public class Main extends JFrame implements ActionListener{
 	private static JFileChooser fileChooser = new JFileChooser();
 
 	//Game variable
-	private static ChessGame MyrmidonGame = new ChessGame(new MyrmidonRule());
+	private static ChessGame MyrmidonGame = ChessGame.InitiallizeChessGame(new MyrmidonRule());
 	private static boolean Selected = false; 
 
     Main()

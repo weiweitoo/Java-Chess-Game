@@ -4,6 +4,7 @@ import java.awt.Color;
 
 public class ChessGame
 {
+	private static ChessGame Instance;
 	private ChessRule CustomRule;
 	
 	private ArrayList<Player> PlayerList = new ArrayList<Player>();
@@ -19,10 +20,19 @@ public class ChessGame
 	
 	private boolean GameRunning = false;
 	
-	public ChessGame(ChessRule CustomRule)
+	private ChessGame(ChessRule CustomRule)
 	{
 		this.CustomRule = CustomRule;
 		this.CustomRule.Initiallize();
+	}
+
+	public static ChessGame InitiallizeChessGame(ChessRule CustomRule)
+	{
+		if (Instance == null)
+		{
+			Instance = new ChessGame(CustomRule);
+		}
+		return Instance;
 	}
 	
 	//Set max player for a game
